@@ -1,6 +1,6 @@
 config {
   type: "table",
-  schema: "dataform",
+  schema: "ncaa_basketball",
   name: "fact_games"
 }
 

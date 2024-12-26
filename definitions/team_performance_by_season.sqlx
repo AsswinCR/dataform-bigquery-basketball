@@ -1,35 +1,42 @@
 config {
   type: "view",
-  schema: "dataform",
+  schema: "my_ncaa_basketball",
   name: "team_performance_by_season"
 }
 
 WITH team_games AS (
+  -- Home games
   SELECT 
     season,
-    home_team_id as team_id,
-    home_team_points as points,
+    h_id as team_id,
+    h_market as team_market,
+    h_name as team_name,
+    h_points as points,
     1 as games_played
-  FROM ${ref("fact_games")}
+  FROM ${ref("mbb_games_sr")}
   
   UNION ALL
   
+  -- Away games
   SELECT 
     season,
-    away_team_id as team_id,
-    away_team_points as points,
+    a_id as team_id,
+    a_market as team_market,
+    a_name as team_name,
+    a_points as points,
     1 as games_played
-  FROM ${ref("fact_games")}
+  FROM ${ref("mbb_games_sr")}
 )
 
 SELECT 
-  tg.season,
-  tg.team_id,
-  t.name as team_name,
-  SUM(tg.points) as total_points,
-  COUNT(tg.games_played) as games_played,
-  ROUND(AVG(tg.points), 2) as avg_points_per_game,
-  RANK() OVER (PARTITION BY tg.season ORDER BY AVG(tg.points) DESC) as scoring_rank
-FROM team_games tg
-JOIN ${ref("dim_teams")} t ON tg.team_id = t.team_id
-GROUP BY tg.season, tg.team_id, t.name
+  season,
+  team_id,
+  team_market,
+  team_name,
+  COUNT(*) as games_played,
+  ROUND(AVG(CAST(points AS FLOAT64)), 2) as avg_points_per_game,
+  SUM(CAST(points AS FLOAT64)) as total_points,
+  RANK() OVER (PARTITION BY season ORDER BY AVG(CAST(points AS FLOAT64)) DESC) as scoring_rank
+FROM team_games
+GROUP BY season, team_id, team_market, team_name
+ORDER BY season DESC, avg_points_per_game DESC
