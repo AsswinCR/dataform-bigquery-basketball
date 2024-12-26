@@ -1,0 +1,59 @@
+config {
+  type: "view",
+  schema: "my_ncaa_basketball",
+  name: "view_home_away_performance"
+}
+
+WITH home_performance AS (
+  SELECT
+    season,
+    h_id as team_id,
+    h_market as team_market,
+    h_name as team_name,
+    COUNT(*) as home_games,
+    SUM(CASE WHEN CAST(h_points as FLOAT64) > CAST(a_points as FLOAT64) THEN 1 ELSE 0 END) as home_wins,
+    ROUND(AVG(CAST(h_points as FLOAT64)), 2) as avg_home_points,
+    ROUND(AVG(CAST(a_points as FLOAT64)), 2) as avg_home_points_allowed,
+    ROUND(AVG(CAST(h_points as FLOAT64) - CAST(a_points as FLOAT64)), 2) as home_point_differential
+  FROM ${ref("mbb_games_sr")}
+  GROUP BY season, h_id, h_market, h_name
+),
+away_performance AS (
+  SELECT
+    season,
+    a_id as team_id,
+    a_market as team_market,
+    a_name as team_name,
+    COUNT(*) as away_games,
+    SUM(CASE WHEN CAST(a_points as FLOAT64) > CAST(h_points as FLOAT64) THEN 1 ELSE 0 END) as away_wins,
+    ROUND(AVG(CAST(a_points as FLOAT64)), 2) as avg_away_points,
+    ROUND(AVG(CAST(h_points as FLOAT64)), 2) as avg_away_points_allowed,
+    ROUND(AVG(CAST(a_points as FLOAT64) - CAST(h_points as FLOAT64)), 2) as away_point_differential
+  FROM ${ref("mbb_games_sr")}
+  GROUP BY season, a_id, a_market, a_name
+)
+
+SELECT 
+  h.season,
+  h.team_id,
+  h.team_market,
+  h.team_name,
+  h.home_games,
+  h.home_wins,
+  ROUND(h.home_wins * 100.0 / h.home_games, 2) as home_win_percentage,
+  h.avg_home_points,
+  h.avg_home_points_allowed,
+  h.home_point_differential,
+  a.away_games,
+  a.away_wins,
+  ROUND(a.away_wins * 100.0 / a.away_games, 2) as away_win_percentage,
+  a.avg_away_points,
+  a.avg_away_points_allowed,
+  a.away_point_differential,
+  ROUND((h.home_point_differential + a.away_point_differential) / 2, 2) as avg_point_differential
+FROM home_performance h
+JOIN away_performance a ON h.team_id = a.team_id AND h.season = a.season
+WHERE h.season >= 2015
+  AND h.home_games >= 5  -- Minimum games threshold
+  AND a.away_games >= 5
+ORDER BY h.season DESC, avg_point_differential DESC

@@ -1,0 +1,13 @@
+SELECT 
+  season,
+  team_market,
+  team_name,
+  total_games,
+  wins,
+  losses,
+  win_percentage,
+  win_pct_rank
+FROM `rapsodo-basketball-444807.my_ncaa_basketball.view_team_win_loss_record`
+WHERE season = 2017
+  AND win_pct_rank <= 10
+ORDER BY win_percentage DESC

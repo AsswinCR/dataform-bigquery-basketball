@@ -1,0 +1,45 @@
+config {
+  type: "view",
+  schema: "ncaa_basketball",
+  name: "view_team_win_loss_record"
+}
+
+WITH team_results AS (
+  -- Home games
+  SELECT 
+    season,
+    h_id as team_id,
+    h_market as team_market,
+    h_name as team_name,
+    CASE WHEN CAST(h_points as FLOAT64) > CAST(a_points as FLOAT64) THEN 1 ELSE 0 END as is_win,
+    1 as games_played
+  FROM ${ref("mbb_games_sr")}
+  
+  UNION ALL
+  
+  -- Away games
+  SELECT 
+    season,
+    a_id as team_id,
+    a_market as team_market,
+    a_name as team_name,
+    CASE WHEN CAST(a_points as FLOAT64) > CAST(h_points as FLOAT64) THEN 1 ELSE 0 END as is_win,
+    1 as games_played
+  FROM ${ref("mbb_games_sr")}
+)
+
+SELECT 
+  season,
+  team_id,
+  team_market,
+  team_name,
+  COUNT(*) as total_games,
+  SUM(is_win) as wins,
+  COUNT(*) - SUM(is_win) as losses,
+  ROUND(SUM(is_win) * 100.0 / COUNT(*), 2) as win_percentage,
+  RANK() OVER (PARTITION BY season ORDER BY SUM(is_win) * 100.0 / COUNT(*) DESC) as win_pct_rank
+FROM team_results
+WHERE season >= 2015
+GROUP BY season, team_id, team_market, team_name
+HAVING total_games >= 10
+ORDER BY season DESC, win_percentage DESC

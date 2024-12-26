@@ -1,0 +1,44 @@
+config {
+  type: "view",
+  schema: "ncaa_basketball",
+  name: "view_team_scoring_leaders"
+}
+
+WITH team_games AS (
+  -- Home games
+  SELECT 
+    season,
+    h_id as team_id,
+    h_market as team_market,
+    h_name as team_name,
+    CAST(h_points as FLOAT64) as points,
+    1 as games_played
+  FROM ${ref("mbb_games_sr")}
+  
+  UNION ALL
+  
+  -- Away games
+  SELECT 
+    season,
+    a_id as team_id,
+    a_market as team_market,
+    a_name as team_name,
+    CAST(a_points as FLOAT64) as points,
+    1 as games_played
+  FROM ${ref("mbb_games_sr")}
+)
+
+SELECT 
+  season,
+  team_id,
+  team_market,
+  team_name,
+  COUNT(*) as games_played,
+  ROUND(AVG(points), 2) as avg_points_per_game,
+  SUM(points) as total_points,
+  RANK() OVER (PARTITION BY season ORDER BY AVG(points) DESC) as scoring_rank
+FROM team_games
+WHERE season >= 2015 -- Recent seasons only
+GROUP BY season, team_id, team_market, team_name
+HAVING games_played >= 10 -- Teams with minimum 10 games
+ORDER BY season DESC, avg_points_per_game DESC

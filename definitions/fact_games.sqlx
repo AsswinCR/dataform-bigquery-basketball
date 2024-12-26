@@ -1,5 +1,22 @@
 config {
   type: "table",
+
+  schema: "ncaa_basketball",
+  name: "fact_games"
+}
+
+SELECT
+  season,
+  scheduled_date,
+  attendance,
+  market,
+  name,
+  team_code,
+  team_id,
+  alias
+FROM ${ref("mbb_historical_teams_games")}
+WHERE season >= 2015
+
   name: "fact_games",
   description: "Fact table for game results and scores"
 }
@@ -19,3 +36,4 @@ SELECT
   home_team_score - away_team_score as score_difference,
   tournament as is_tournament_game
 FROM `bigquery-public-data.ncaa_basketball.mbb_games`
+

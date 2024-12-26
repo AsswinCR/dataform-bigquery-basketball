@@ -1,0 +1,42 @@
+config {
+  type: "view",
+  schema: "my_ncaa_basketball",
+  name: "team_performance_by_season"
+}
+
+WITH team_games AS (
+  -- Home games
+  SELECT 
+    season,
+    h_id as team_id,
+    h_market as team_market,
+    h_name as team_name,
+    h_points as points,
+    1 as games_played
+  FROM ${ref("mbb_games_sr")}
+  
+  UNION ALL
+  
+  -- Away games
+  SELECT 
+    season,
+    a_id as team_id,
+    a_market as team_market,
+    a_name as team_name,
+    a_points as points,
+    1 as games_played
+  FROM ${ref("mbb_games_sr")}
+)
+
+SELECT 
+  season,
+  team_id,
+  team_market,
+  team_name,
+  COUNT(*) as games_played,
+  ROUND(AVG(CAST(points AS FLOAT64)), 2) as avg_points_per_game,
+  SUM(CAST(points AS FLOAT64)) as total_points,
+  RANK() OVER (PARTITION BY season ORDER BY AVG(CAST(points AS FLOAT64)) DESC) as scoring_rank
+FROM team_games
+GROUP BY season, team_id, team_market, team_name
+ORDER BY season DESC, avg_points_per_game DESC

@@ -1,5 +1,16 @@
 config {
   type: "table",
+
+  schema: "ncaa_basketball",
+  name: "dim_seasons"
+}
+
+SELECT DISTINCT
+  season,
+  season as season_year,
+  'Regular Season' as season_type  -- Since we can't determine month from just the year
+FROM ${ref("mbb_historical_teams_games")}
+
   name: "dim_seasons",
   description: "Dimension table for seasons"
 }
@@ -7,4 +18,5 @@ config {
 SELECT DISTINCT
   season
 FROM `bigquery-public-data.ncaa_basketball.mbb_games`
+
 ORDER BY season
