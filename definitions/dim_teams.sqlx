@@ -1,0 +1,15 @@
+config {
+  type: "table",
+  schema: "dataform",
+  name: "dim_teams"
+}
+
+SELECT 
+  id as team_id,
+  name as team_name,
+  market as team_market,
+  venue_name,
+  venue_capacity,
+  venue_city,
+  venue_state
+FROM ${ref("mbb_teams")}

@@ -1,5 +1,12 @@
-defaultProject: rapsodo-basketball-444807
+# defaultProject: rapsodo-basketball-444807
+# defaultLocation: US
+# defaultDataset: dataform
+# defaultAssertionDataset: dataform_assertions
+# dataformCoreVersion: 3.0.0
+
+
+defaultProject: bigquery-public-data
 defaultLocation: US
-defaultDataset: dataform
+defaultDataset: ncaa_basketball
 defaultAssertionDataset: dataform_assertions
 dataformCoreVersion: 3.0.0

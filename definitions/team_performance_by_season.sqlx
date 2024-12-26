@@ -1,0 +1,35 @@
+config {
+  type: "view",
+  schema: "dataform",
+  name: "team_performance_by_season"
+}
+
+WITH team_games AS (
+  SELECT 
+    season,
+    home_team_id as team_id,
+    home_team_points as points,
+    1 as games_played
+  FROM ${ref("fact_games")}
+  
+  UNION ALL
+  
+  SELECT 
+    season,
+    away_team_id as team_id,
+    away_team_points as points,
+    1 as games_played
+  FROM ${ref("fact_games")}
+)
+
+SELECT 
+  tg.season,
+  tg.team_id,
+  t.name as team_name,
+  SUM(tg.points) as total_points,
+  COUNT(tg.games_played) as games_played,
+  ROUND(AVG(tg.points), 2) as avg_points_per_game,
+  RANK() OVER (PARTITION BY tg.season ORDER BY AVG(tg.points) DESC) as scoring_rank
+FROM team_games tg
+JOIN ${ref("dim_teams")} t ON tg.team_id = t.team_id
+GROUP BY tg.season, tg.team_id, t.name

@@ -1,0 +1,12 @@
+config {
+  type: "table",
+  schema: "dataform",
+  name: "dim_seasons"
+}
+
+SELECT DISTINCT
+  season,
+  season as season_year,
+  'Regular Season' as season_type  -- Since we can't determine month from just the year
+FROM ${ref("mbb_historical_teams_games")}
+ORDER BY season

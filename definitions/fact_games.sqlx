@@ -1,0 +1,17 @@
+config {
+  type: "table",
+  schema: "dataform",
+  name: "fact_games"
+}
+
+SELECT
+  season,
+  scheduled_date,
+  attendance,
+  market,
+  name,
+  team_code,
+  team_id,
+  alias
+FROM ${ref("mbb_historical_teams_games")}
+WHERE season >= 2015
