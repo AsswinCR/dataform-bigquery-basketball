@@ -1,0 +1,44 @@
+config {
+  type: "view",
+  name: "analysis_home_away_performance",
+  description: "Home vs Away performance comparison for teams"
+}
+
+WITH home_performance AS (
+  SELECT
+    home_team_id as team_id,
+    season,
+    COUNT(*) as home_games,
+    SUM(CASE WHEN home_team_score > away_team_score THEN 1 ELSE 0 END) as home_wins,
+    AVG(home_team_score) as avg_home_score
+  FROM ${ref("fact_games")}
+  GROUP BY 1, 2
+),
+
+away_performance AS (
+  SELECT
+    away_team_id as team_id,
+    season,
+    COUNT(*) as away_games,
+    SUM(CASE WHEN away_team_score > home_team_score THEN 1 ELSE 0 END) as away_wins,
+    AVG(away_team_score) as avg_away_score
+  FROM ${ref("fact_games")}
+  GROUP BY 1, 2
+)
+
+SELECT
+  t.team_name,
+  h.season,
+  h.home_games,
+  h.home_wins,
+  ROUND(h.home_wins * 100.0 / h.home_games, 2) as home_win_percentage,
+  ROUND(h.avg_home_score, 2) as avg_home_score,
+  a.away_games,
+  a.away_wins,
+  ROUND(a.away_wins * 100.0 / a.away_games, 2) as away_win_percentage,
+  ROUND(a.avg_away_score, 2) as avg_away_score,
+  ROUND((h.avg_home_score - a.avg_away_score), 2) as home_away_score_diff
+FROM home_performance h
+JOIN away_performance a ON h.team_id = a.team_id AND h.season = a.season
+JOIN ${ref("dim_teams")} t ON h.team_id = t.team_id
+ORDER BY h.season DESC, home_win_percentage DESC

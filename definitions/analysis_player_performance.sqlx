@@ -1,0 +1,28 @@
+config {
+  type: "view",
+  name: "analysis_player_performance",
+  description: "Top 10 players by average points per game"
+}
+
+WITH player_stats AS (
+  SELECT
+    player_id,
+    player_name,
+    season,
+    AVG(points) as avg_points,
+    COUNT(*) as games_played,
+    SUM(points) as total_points
+  FROM `bigquery-public-data.ncaa_basketball.mbb_players_games_sr`
+  GROUP BY 1, 2, 3
+  HAVING games_played >= 10  -- minimum games threshold for significance
+)
+
+SELECT 
+  player_name,
+  season,
+  ROUND(avg_points, 2) as avg_points_per_game,
+  games_played,
+  total_points
+FROM player_stats
+ORDER BY avg_points DESC
+LIMIT 10

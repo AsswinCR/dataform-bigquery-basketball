@@ -1,5 +1,6 @@
 config {
   type: "table",
+
   schema: "ncaa_basketball",
   name: "dim_teams"
 }
@@ -13,3 +14,18 @@ SELECT
   venue_city,
   venue_state
 FROM ${ref("mbb_teams")}
+
+  name: "dim_teams",
+  description: "Dimension table for basketball teams"
+}
+
+SELECT DISTINCT
+  id as team_id,
+  market as team_name,
+  venue_name,
+  venue_capacity,
+  venue_city,
+  venue_state,
+  alias as team_code
+FROM `bigquery-public-data.ncaa_basketball.mbb_teams`
+

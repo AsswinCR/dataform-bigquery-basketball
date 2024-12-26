@@ -1,0 +1,23 @@
+-- This is an example SQLX file to help you learn the basics of Dataform.
+-- Visit https://cloud.google.com/dataform/docs/sql-workflows for more information on how to configure your SQL workflow.
+
+-- You can delete this file, then commit and push your changes to your repository when you are ready.
+
+-- Config blocks allow you to configure, document, and test your data assets.
+config {
+  type: "view",
+  name: "teams_summary",
+  schema: "dataform",
+  description: "Basic summary of basketball teams with their venue information"
+}
+
+SELECT 
+  id as team_id,
+  market as team_name,
+  name as team_full_name,
+  venue_name,
+  venue_capacity,
+  venue_city,
+  venue_state,
+  alias as team_code
+FROM `bigquery-public-data.ncaa_basketball.mbb_teams`

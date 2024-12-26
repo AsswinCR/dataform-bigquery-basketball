@@ -1,0 +1,35 @@
+
+config {
+  type: "view",
+  name: "analysis_top_teams",
+  description: "Top performing teams by average points per season"
+}
+
+WITH team_games AS (
+  SELECT
+    season,
+    home_team_id as team_id,
+    home_team_score as points,
+    1 as games_played
+  FROM ${ref("fact_games")}
+  
+  UNION ALL
+  
+  SELECT
+    season,
+    away_team_id as team_id,
+    away_team_score as points,
+    1 as games_played
+  FROM ${ref("fact_games")}
+)
+
+SELECT 
+  t.team_name,
+  g.season,
+  ROUND(SUM(g.points) / SUM(g.games_played), 2) as avg_points_per_game,
+  SUM(g.games_played) as total_games,
+  SUM(g.points) as total_points
+FROM team_games g
+JOIN ${ref("dim_teams")} t ON g.team_id = t.team_id
+GROUP BY 1, 2
+ORDER BY g.season DESC, avg_points_per_game DESC
