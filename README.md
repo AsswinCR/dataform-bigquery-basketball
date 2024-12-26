@@ -72,6 +72,32 @@ bb-workspace/
 - Performance optimizations (filtering recent seasons, minimum game thresholds)
 - Comprehensive team performance metrics
 
+## How to Run the Project
+
+1. **Initial Setup**
+    
+    ```bash
+    - Open Google Cloud Console
+    - Navigate to Dataform
+    - Open your workspace "bb-workspace"
+    
+    ```
+    
+2. **Execute in Order**
+    
+    ```
+    1. Run sources.js first
+    2. Execute dimension tables
+    3. Run fact tables
+    4. Finally, create analytical views
+    
+    ```
+    
+3. **Verify Results**
+    - Check each table/view after creation
+    - Use the "Query Results" tab to preview data
+    - Verify row counts and data quality
+
 ## Analytical Capabilities
 1. **Team Performance Analysis**
    - Scoring leaders by season
