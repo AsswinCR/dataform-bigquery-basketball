@@ -1,0 +1,10 @@
+config {
+  type: "table",
+  name: "dim_seasons",
+  description: "Dimension table for seasons"
+}
+
+SELECT DISTINCT
+  season
+FROM `bigquery-public-data.ncaa_basketball.mbb_games`
+ORDER BY season

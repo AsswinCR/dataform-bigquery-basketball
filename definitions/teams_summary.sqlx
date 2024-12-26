@@ -5,12 +5,19 @@
 
 -- Config blocks allow you to configure, document, and test your data assets.
 config {
-  type: "view", // Creates a view in BigQuery. Try changing to "table" instead.
-  columns: {
-    test: "A description for the test column", // Column descriptions are pushed to BigQuery.
-  }
+  type: "view",
+  name: "teams_summary",
+  schema: "dataform",
+  description: "Basic summary of basketball teams with their venue information"
 }
 
--- The rest of a SQLX file contains your SELECT statement used to create the table.
-
-SELECT 1 as test
+SELECT 
+  id as team_id,
+  market as team_name,
+  name as team_full_name,
+  venue_name,
+  venue_capacity,
+  venue_city,
+  venue_state,
+  alias as team_code
+FROM `bigquery-public-data.ncaa_basketball.mbb_teams`

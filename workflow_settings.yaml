@@ -1,5 +1,6 @@
 defaultProject: rapsodo-basketball-444807
-defaultLocation: US
+defaultLocation: us-west1
+#defaultSchema: dataform
 defaultDataset: dataform
 defaultAssertionDataset: dataform_assertions
 dataformCoreVersion: 3.0.0

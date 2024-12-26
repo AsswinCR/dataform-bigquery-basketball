@@ -1,0 +1,15 @@
+config {
+  type: "table",
+  name: "dim_teams",
+  description: "Dimension table for basketball teams"
+}
+
+SELECT DISTINCT
+  id as team_id,
+  market as team_name,
+  venue_name,
+  venue_capacity,
+  venue_city,
+  venue_state,
+  alias as team_code
+FROM `bigquery-public-data.ncaa_basketball.mbb_teams`
