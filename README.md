@@ -40,7 +40,7 @@ This project implements a data transformation pipeline using Google Cloud Datafo
    - `view_team_scoring_leaders.sqlx`: Analysis of team scoring performance
      - Shows average points per game
      - Ranks teams by scoring within each season
-     - Includes total points and games played
+     - Includes total points and games played.
 
    - `view_team_win_loss_record.sqlx`: Team win/loss analysis
      - Calculates wins, losses, and win percentage
